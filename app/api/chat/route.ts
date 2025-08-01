@@ -5,8 +5,9 @@ export async function POST(req: Request) {
   try {
     console.log("Chat API route called")
 
-    const { messages } = await req.json()
+    const { messages, language } = await req.json() // Get language from request body
     console.log("Received messages:", messages)
+    console.log("Requested language:", language)
 
     if (!process.env.MISTRAL_API_KEY) {
       console.error("MISTRAL_API_KEY is not set")
@@ -15,9 +16,20 @@ export async function POST(req: Request) {
 
     console.log("Using Mistral API key:", process.env.MISTRAL_API_KEY?.substring(0, 10) + "...")
 
-    const systemMessage = {
-      role: "system",
-      content: `Tu es l'Assistant STRUGAL, un assistant IA utile pour le système de gestion d'inventaire STRUGAL. 
+    let systemContent = ""
+    if (language === "es") {
+      systemContent = `Eres el Asistente STRUGAL, un asistente de IA útil para el sistema de gestión de inventario STRUGAL.
+      
+      Ayudas a los usuarios con:
+      - Preguntas sobre la gestión de inventario
+      - Comprensión de productos de aluminio y vidrio
+      - Orientación sobre la navegación y las funciones del sistema
+      - Soporte general para el sistema de inventario STRUGAL
+      
+      Responde SIEMPRE en español. Mantén tus respuestas concisas, útiles y profesionales. Mantén siempre un tono amigable.
+      Si se te piden datos de inventario específicos, recuerda a los usuarios que consulten el panel de control para obtener información en tiempo real.`
+    } else if (language === "fr") {
+      systemContent = `Tu es l'Assistant STRUGAL, un assistant IA utile pour le système de gestion d'inventaire STRUGAL.
       
       Tu aides les utilisateurs avec :
       - Questions sur la gestion d'inventaire
@@ -26,7 +38,24 @@ export async function POST(req: Request) {
       - Support général pour le système d'inventaire STRUGAL
       
       Réponds TOUJOURS en français. Garde tes réponses concises, utiles et professionnelles. Maintiens toujours un ton amical.
-      Si on te demande des données d'inventaire spécifiques, rappelle aux utilisateurs de vérifier le tableau de bord pour les informations en temps réel.`,
+      Si on te demande des données d'inventaire spécifiques, rappelle aux utilisateurs de vérifier le tableau de bord pour les informations en temps réel.`
+    } else {
+      // Default to Spanish if language is not recognized
+      systemContent = `Eres el Asistente STRUGAL, un asistente de IA útil para el sistema de gestión de inventario STRUGAL.
+      
+      Ayudas a los usuarios con:
+      - Preguntas sobre la gestión de inventario
+      - Comprensión de productos de aluminio y vidrio
+      - Orientación sobre la navegación y las funciones del sistema
+      - Soporte general para el sistema de inventario STRUGAL
+      
+      Responde SIEMPRE en español. Mantén tus respuestas concisas, útiles y profesionales. Mantén siempre un tono amigable.
+      Si se te piden datos de inventario específicos, recuerda a los usuarios que consulten el panel de control para obtener información en tiempo real.`
+    }
+
+    const systemMessage = {
+      role: "system",
+      content: systemContent,
     }
 
     const response = await fetch("https://api.mistral.ai/v1/chat/completions", {

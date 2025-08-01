@@ -8,6 +8,8 @@ import { Badge } from "@/components/ui/badge"
 import { Edit, Trash2, Package, Calendar } from "lucide-react"
 import { type InventoryItem, deleteInventoryItem } from "@/lib/inventory"
 import { format } from "date-fns"
+import { fr, es } from "date-fns/locale" // Import both locales
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 interface InventoryTableProps {
   items: InventoryItem[]
@@ -16,21 +18,24 @@ interface InventoryTableProps {
 }
 
 export default function InventoryTable({ items, onEdit, onRefresh }: InventoryTableProps) {
+  const { t, language } = useLanguage() // Use the translation hook and language
   const [deletingId, setDeletingId] = useState<number | null>(null)
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Are you sure you want to delete this item?")) return
+    if (!confirm(t("confirm.delete"))) return
 
     setDeletingId(id)
     try {
       await deleteInventoryItem(id)
       onRefresh()
     } catch (error) {
-      alert("Failed to delete item")
+      alert(t("error.failed_to_delete"))
     } finally {
       setDeletingId(null)
     }
   }
+
+  const currentLocale = language === "fr" ? fr : es // Select locale based on current language
 
   if (items.length === 0) {
     return (
@@ -38,8 +43,8 @@ export default function InventoryTable({ items, onEdit, onRefresh }: InventoryTa
         <div className="mx-auto w-24 h-24 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center mb-6">
           <Package className="h-12 w-12 text-gray-400" />
         </div>
-        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">No inventory items</h3>
-        <p className="text-gray-500 dark:text-gray-400 mb-6">Get started by adding your first inventory item</p>
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2">{t("table.no_items.title")}</h3>
+        <p className="text-gray-500 dark:text-gray-400 mb-6">{t("table.no_items.description")}</p>
       </motion.div>
     )
   }
@@ -49,12 +54,12 @@ export default function InventoryTable({ items, onEdit, onRefresh }: InventoryTa
       <Table>
         <TableHeader>
           <TableRow className="bg-gray-50 dark:bg-gray-700/50 hover:bg-gray-50 dark:hover:bg-gray-700/50">
-            <TableHead className="font-semibold">Type</TableHead>
-            <TableHead className="font-semibold">Quantity</TableHead>
-            <TableHead className="font-semibold">Description</TableHead>
-            <TableHead className="font-semibold">Created</TableHead>
-            <TableHead className="font-semibold">Updated</TableHead>
-            <TableHead className="text-right font-semibold">Actions</TableHead>
+            <TableHead className="font-semibold">{t("table.type")}</TableHead>
+            <TableHead className="font-semibold">{t("table.quantity")}</TableHead>
+            <TableHead className="font-semibold">{t("table.description")}</TableHead>
+            <TableHead className="font-semibold">{t("table.created")}</TableHead>
+            <TableHead className="font-semibold">{t("table.updated")}</TableHead>
+            <TableHead className="text-right font-semibold">{t("table.actions")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -77,7 +82,7 @@ export default function InventoryTable({ items, onEdit, onRefresh }: InventoryTa
                         : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300"
                     } font-medium px-3 py-1`}
                   >
-                    {item.type}
+                    {item.type === "aluminum" ? t("table.badge.aluminum") : t("table.badge.glass")}
                   </Badge>
                 </TableCell>
                 <TableCell className="font-semibold text-lg">{item.quantity}</TableCell>
@@ -89,13 +94,13 @@ export default function InventoryTable({ items, onEdit, onRefresh }: InventoryTa
                 <TableCell className="text-sm text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {format(new Date(item.created_at), "MMM dd, yyyy")}
+                    {format(new Date(item.created_at), "MMM dd, yyyy", { locale: currentLocale })}
                   </div>
                 </TableCell>
                 <TableCell className="text-sm text-gray-500 dark:text-gray-400">
                   <div className="flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
-                    {format(new Date(item.updated_at), "MMM dd, yyyy")}
+                    {format(new Date(item.updated_at), "MMM dd, yyyy", { locale: currentLocale })}
                   </div>
                 </TableCell>
                 <TableCell className="text-right">

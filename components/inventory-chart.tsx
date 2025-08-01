@@ -15,6 +15,7 @@ import {
 } from "recharts"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import type { InventoryItem } from "@/lib/inventory"
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 interface InventoryChartProps {
   items: InventoryItem[]
@@ -26,14 +27,16 @@ const COLORS = {
 }
 
 export default function InventoryChart({ items }: InventoryChartProps) {
+  const { t } = useLanguage() // Use the translation hook
+
   const pieData = [
     {
-      name: "Aluminum",
+      name: t("table.badge.aluminum"),
       value: items.filter((item) => item.type === "aluminum").reduce((sum, item) => sum + item.quantity, 0),
       color: COLORS.aluminum,
     },
     {
-      name: "Glass",
+      name: t("table.badge.glass"),
       value: items.filter((item) => item.type === "glass").reduce((sum, item) => sum + item.quantity, 0),
       color: COLORS.glass,
     },
@@ -49,8 +52,8 @@ export default function InventoryChart({ items }: InventoryChartProps) {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       <Card className="border-0 shadow-lg bg-gradient-to-br from-primary-50 to-primary-100 dark:from-primary-950/20 dark:to-primary-900/20">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Stock Distribution</CardTitle>
-          <CardDescription>Aluminum vs Glass inventory breakdown</CardDescription>
+          <CardTitle className="text-lg font-semibold">{t("chart.stock_distribution.title")}</CardTitle>
+          <CardDescription>{t("chart.stock_distribution.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>
@@ -61,7 +64,7 @@ export default function InventoryChart({ items }: InventoryChartProps) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) => [value, "Quantity"]}
+                formatter={(value: number) => [value, t("chart.quantity")]}
                 contentStyle={{
                   backgroundColor: "hsl(var(--background))",
                   border: "1px solid hsl(var(--border))",
@@ -76,8 +79,8 @@ export default function InventoryChart({ items }: InventoryChartProps) {
 
       <Card className="border-0 shadow-lg bg-gradient-to-br from-slate-50 to-gray-50 dark:from-slate-950/20 dark:to-gray-950/20">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Top Items</CardTitle>
-          <CardDescription>Highest quantity items in inventory</CardDescription>
+          <CardTitle className="text-lg font-semibold">{t("chart.top_items.title")}</CardTitle>
+          <CardDescription>{t("chart.top_items.description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={250}>

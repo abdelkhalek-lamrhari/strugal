@@ -21,8 +21,9 @@ import {
 } from "lucide-react"
 import { type InventoryItem, deleteInventoryItem } from "@/lib/inventory"
 import { format } from "date-fns"
-import { fr } from "date-fns/locale"
+import { fr, es } from "date-fns/locale" // Import both locales
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 interface EnhancedInventoryTableProps {
   items: InventoryItem[]
@@ -31,6 +32,7 @@ interface EnhancedInventoryTableProps {
 }
 
 export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: EnhancedInventoryTableProps) {
+  const { t, language } = useLanguage() // Use the translation hook and language
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [searchTerm, setSearchTerm] = useState("")
   const [sortField, setSortField] = useState<keyof InventoryItem>("created_at")
@@ -38,14 +40,14 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
   const [filterType, setFilterType] = useState<"all" | "aluminum" | "glass">("all")
 
   const handleDelete = async (id: number) => {
-    if (!confirm("Êtes-vous sûr de vouloir supprimer cet article ?")) return
+    if (!confirm(t("confirm.delete"))) return
 
     setDeletingId(id)
     try {
       await deleteInventoryItem(id)
       onRefresh()
     } catch (error) {
-      alert("Échec de la suppression de l'article")
+      alert(t("error.failed_to_delete"))
     } finally {
       setDeletingId(null)
     }
@@ -80,6 +82,8 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
       return 0
     })
 
+  const currentLocale = language === "fr" ? fr : es // Select locale based on current language
+
   if (items.length === 0) {
     return (
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center py-16">
@@ -89,14 +93,12 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
         >
           <Package className="h-16 w-16 text-gray-400" />
         </motion.div>
-        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">Aucun article d'inventaire</h3>
-        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">
-          Commencez par ajouter votre premier article d'inventaire pour voir vos données ici
-        </p>
+        <h3 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-3">{t("table.no_items.title")}</h3>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md mx-auto">{t("table.no_items.description")}</p>
         <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
           <Button className="bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 text-white shadow-lg">
             <Package className="h-4 w-4 mr-2" />
-            Ajouter un article
+            {t("dashboard.new_item.button")}
           </Button>
         </motion.div>
       </motion.div>
@@ -114,7 +116,7 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
-            placeholder="Rechercher dans l'inventaire..."
+            placeholder={t("table.search.placeholder")}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10 h-12 border-0 bg-white dark:bg-gray-800 shadow-sm focus:shadow-md transition-shadow"
@@ -129,19 +131,21 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
                 className="h-12 px-4 bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md"
               >
                 <Filter className="h-4 w-4 mr-2" />
-                Filtrer
+                {t("table.filter.button")}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent>
-              <DropdownMenuItem onClick={() => setFilterType("all")}>Tous les types</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterType("aluminum")}>Aluminium uniquement</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setFilterType("glass")}>Verre uniquement</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterType("all")}>{t("table.filter.all")}</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterType("aluminum")}>
+                {t("table.filter.aluminum")}
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setFilterType("glass")}>{t("table.filter.glass")}</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
           <Button variant="outline" className="h-12 px-4 bg-white dark:bg-gray-800 border-0 shadow-sm hover:shadow-md">
             <Download className="h-4 w-4 mr-2" />
-            Exporter
+            {t("table.export.button")}
           </Button>
         </div>
       </motion.div>
@@ -161,7 +165,7 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
                   onClick={() => handleSort("type")}
                   className="h-auto p-0 font-semibold hover:bg-transparent"
                 >
-                  Type
+                  {t("table.type")}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
@@ -171,23 +175,25 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
                   onClick={() => handleSort("quantity")}
                   className="h-auto p-0 font-semibold hover:bg-transparent"
                 >
-                  Quantité
+                  {t("table.quantity")}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Description</TableHead>
+              <TableHead className="font-semibold text-gray-700 dark:text-gray-300">{t("table.description")}</TableHead>
               <TableHead className="font-semibold text-gray-700 dark:text-gray-300">
                 <Button
                   variant="ghost"
                   onClick={() => handleSort("created_at")}
                   className="h-auto p-0 font-semibold hover:bg-transparent"
                 >
-                  Créé
+                  {t("table.created")}
                   <ArrowUpDown className="ml-2 h-4 w-4" />
                 </Button>
               </TableHead>
-              <TableHead className="font-semibold text-gray-700 dark:text-gray-300">Mis à jour</TableHead>
-              <TableHead className="text-right font-semibold text-gray-700 dark:text-gray-300">Actions</TableHead>
+              <TableHead className="font-semibold text-gray-700 dark:text-gray-300">{t("table.updated")}</TableHead>
+              <TableHead className="text-right font-semibold text-gray-700 dark:text-gray-300">
+                {t("table.actions")}
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -211,7 +217,7 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
                             : "bg-gradient-to-r from-primary-50 to-primary-100 text-primary-700 dark:from-primary-800/20 dark:to-primary-700/20 dark:text-primary-400 border-primary-200"
                         } font-medium px-3 py-1.5 shadow-sm`}
                       >
-                        {item.type === "aluminum" ? "Aluminium" : "Verre"}
+                        {item.type === "aluminum" ? t("table.badge.aluminum") : t("table.badge.glass")}
                       </Badge>
                     </motion.div>
                   </TableCell>
@@ -235,7 +241,7 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       <span className="font-medium">
-                        {format(new Date(item.created_at), "dd MMM yyyy", { locale: fr })}
+                        {format(new Date(item.created_at), "dd MMM yyyy", { locale: currentLocale })}
                       </span>
                     </div>
                   </TableCell>
@@ -243,7 +249,7 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       <span className="font-medium">
-                        {format(new Date(item.updated_at), "dd MMM yyyy", { locale: fr })}
+                        {format(new Date(item.updated_at), "dd MMM yyyy", { locale: currentLocale })}
                       </span>
                     </div>
                   </TableCell>
@@ -292,9 +298,9 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
                           </motion.div>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent>
-                          <DropdownMenuItem>Dupliquer</DropdownMenuItem>
-                          <DropdownMenuItem>Historique</DropdownMenuItem>
-                          <DropdownMenuItem>Exporter</DropdownMenuItem>
+                          <DropdownMenuItem>{t("table.dropdown.duplicate")}</DropdownMenuItem>
+                          <DropdownMenuItem>{t("table.dropdown.history")}</DropdownMenuItem>
+                          <DropdownMenuItem>{t("table.dropdown.export")}</DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
                     </div>
@@ -312,7 +318,7 @@ export default function EnhancedInventoryTable({ items, onEdit, onRefresh }: Enh
         animate={{ opacity: 1 }}
         className="text-center text-sm text-gray-500 dark:text-gray-400"
       >
-        Affichage de {filteredAndSortedItems.length} sur {items.length} articles
+        {t("table.displaying_items", { filteredCount: filteredAndSortedItems.length, totalCount: items.length })}
       </motion.div>
     </div>
   )

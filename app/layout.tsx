@@ -3,11 +3,12 @@ import type { Metadata } from "next"
 import { GeistSans } from "geist/font/sans"
 import { GeistMono } from "geist/font/mono"
 import { ThemeProvider } from "@/components/theme-provider"
+import { LanguageProvider } from "@/contexts/language-context" // Import LanguageProvider
 import "./globals.css"
 
 export const metadata: Metadata = {
-  title: "STRUGAL Inventory System",
-  description: "Professional inventory management system for STRUGAL's aluminum and glass production.",
+  title: "STRUGAL Inventory System", // This will be dynamically set by the LanguageProvider
+  description: "Professional inventory management system for STRUGAL's aluminum and glass production.", // This will be dynamically set
   generator: "v0.dev",
 }
 
@@ -29,7 +30,11 @@ html {
       </head>
       <body className="antialiased">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          {children}
+          <LanguageProvider>
+            {" "}
+            {/* Wrap children with LanguageProvider */}
+            {children}
+          </LanguageProvider>
         </ThemeProvider>
       </body>
     </html>

@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Plus, LogOut, Sparkles, Package } from "lucide-react"
+import { Plus, LogOut, Sparkles, Package, Globe } from "lucide-react" // Import Globe icon
 import { getUser, logout } from "@/lib/auth"
 import { getInventory, type InventoryItem } from "@/lib/inventory"
 import InventoryForm from "@/components/inventory-form"
@@ -18,6 +18,7 @@ import EnhancedChatbot from "@/components/enhanced-chatbot"
 import EnhancedDashboardStats from "@/components/enhanced-dashboard-stats"
 import EnhancedInventoryTable from "@/components/enhanced-inventory-table"
 import Image from "next/image"
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 export default function DashboardPage() {
   const [mounted, setMounted] = useState(false)
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const [showForm, setShowForm] = useState(false)
   const [editItem, setEditItem] = useState<InventoryItem | null>(null)
   const router = useRouter()
+  const { t, language, setLanguage } = useLanguage() // Use the translation hook
 
   useEffect(() => {
     setMounted(true)
@@ -76,6 +78,10 @@ export default function DashboardPage() {
     loadInventory()
   }
 
+  const toggleLanguage = () => {
+    setLanguage(language === "es" ? "fr" : "es")
+  }
+
   if (!mounted) {
     return (
       <div className="min-h-screen flex items-center justify-center gradient-bg">
@@ -88,7 +94,7 @@ export default function DashboardPage() {
           <div className="w-16 h-16 bg-primary-500/20 rounded-2xl flex items-center justify-center mb-4 mx-auto backdrop-blur-sm">
             <Sparkles className="h-8 w-8 text-primary-400 animate-pulse" />
           </div>
-          <p className="text-primary-100 font-medium">Chargement...</p>
+          <p className="text-primary-100 font-medium">{t("loading.text")}</p>
         </motion.div>
       </div>
     )
@@ -110,7 +116,7 @@ export default function DashboardPage() {
                 </div>
                 <div>
                   <h1 className="text-2xl font-bold gradient-text">STRUGAL</h1>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">Système d'Inventaire</p>
+                  <p className="text-sm text-gray-600 dark:text-gray-400">{t("app.title")}</p>
                 </div>
               </motion.div>
             </div>
@@ -151,10 +157,10 @@ export default function DashboardPage() {
               <div className="h-8 w-px bg-gradient-to-b from-transparent via-gray-300 to-transparent dark:via-gray-600"></div>
               <div>
                 <h1 className="text-xl font-bold gradient-text flex items-center gap-2">
-                  Système d'Inventaire
+                  {t("dashboard.title")}
                   <Sparkles className="h-5 w-5 text-primary-500" />
                 </h1>
-                <p className="text-sm text-gray-600 dark:text-gray-400">Gestion Professionnelle</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t("dashboard.subtitle")}</p>
               </div>
             </motion.div>
 
@@ -164,13 +170,25 @@ export default function DashboardPage() {
               className="flex items-center gap-4"
             >
               <div className="text-right">
-                <p className="text-sm text-gray-600 dark:text-gray-400">Bienvenue,</p>
+                <p className="text-sm text-gray-600 dark:text-gray-400">{t("welcome.text")}</p>
                 <p className="font-semibold text-gray-900 dark:text-gray-100 flex items-center gap-2">
                   {user?.username}
                   <Sparkles className="h-4 w-4 text-primary-500" />
                 </p>
               </div>
               <ThemeToggle />
+              {/* Language Toggle Button */}
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleLanguage}
+                  className="hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 bg-white/80 backdrop-blur-sm border-white/20 shadow-lg"
+                >
+                  <Globe className="h-4 w-4 mr-2" />
+                  {language === "es" ? "ES" : "FR"}
+                </Button>
+              </motion.div>
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                 <Button
                   variant="outline"
@@ -179,7 +197,7 @@ export default function DashboardPage() {
                   className="hover:bg-primary-50 hover:text-primary-600 hover:border-primary-200 bg-white/80 backdrop-blur-sm border-white/20 shadow-lg"
                 >
                   <LogOut className="h-4 w-4 mr-2" />
-                  Déconnexion
+                  {t("logout.button")}
                 </Button>
               </motion.div>
             </motion.div>
@@ -215,11 +233,11 @@ export default function DashboardPage() {
               <div className="flex justify-between items-center">
                 <div>
                   <CardTitle className="text-2xl font-bold gradient-text flex items-center gap-2">
-                    Articles d'Inventaire
+                    {t("dashboard.inventory_items.title")}
                     <Package className="h-6 w-6 text-primary-500" />
                   </CardTitle>
                   <CardDescription className="text-base mt-1">
-                    Gérez votre inventaire d'aluminium et de verre avec style
+                    {t("dashboard.inventory_items.description")}
                   </CardDescription>
                 </div>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -228,7 +246,7 @@ export default function DashboardPage() {
                     className="bg-gradient-to-r from-primary-500 via-primary-600 to-primary-700 hover:from-primary-600 hover:via-primary-700 hover:to-primary-800 text-white shadow-xl hover:shadow-2xl transition-all duration-300 h-12 px-6 rounded-xl"
                   >
                     <Plus className="h-5 w-5 mr-2" />
-                    Nouvel Article
+                    {t("dashboard.new_item.button")}
                   </Button>
                 </motion.div>
               </div>

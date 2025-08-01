@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Lock, User, ArrowRight, Loader2 } from "lucide-react"
 import { login, setUser } from "@/lib/auth"
 import Image from "next/image"
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 export default function LoginForm() {
   const [username, setUsername] = useState("")
@@ -19,6 +20,7 @@ export default function LoginForm() {
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { t } = useLanguage() // Use the translation hook
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -31,10 +33,10 @@ export default function LoginForm() {
         setUser(user)
         router.push("/dashboard")
       } else {
-        setError("Invalid username or password")
+        setError(t("login.invalid_credentials"))
       }
     } catch (err) {
-      setError("Login failed. Please try again.")
+      setError(t("login.failed"))
     } finally {
       setLoading(false)
     }
@@ -66,9 +68,9 @@ export default function LoginForm() {
             </motion.div>
             <div>
               <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary-600 to-primary-700 bg-clip-text text-transparent">
-                Inventory System
+                {t("login.title")}
               </CardTitle>
-              <CardDescription className="text-base mt-2">Sign in to manage your production inventory</CardDescription>
+              <CardDescription className="text-base mt-2">{t("login.description")}</CardDescription>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -80,7 +82,7 @@ export default function LoginForm() {
                 className="space-y-2"
               >
                 <Label htmlFor="username" className="text-sm font-medium">
-                  Username
+                  {t("login.username")}
                 </Label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -90,7 +92,7 @@ export default function LoginForm() {
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     required
-                    placeholder="Enter your username"
+                    placeholder={t("login.username")}
                     className="pl-10 h-12 border-0 bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-400"
                   />
                 </div>
@@ -103,7 +105,7 @@ export default function LoginForm() {
                 className="space-y-2"
               >
                 <Label htmlFor="password" className="text-sm font-medium">
-                  Password
+                  {t("login.password")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
@@ -113,7 +115,7 @@ export default function LoginForm() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    placeholder="Enter your password"
+                    placeholder={t("login.password")}
                     className="pl-10 h-12 border-0 bg-gray-50 dark:bg-gray-700 focus:ring-2 focus:ring-primary-400"
                   />
                 </div>
@@ -142,7 +144,7 @@ export default function LoginForm() {
                   ) : (
                     <ArrowRight className="h-4 w-4 mr-2" />
                   )}
-                  {loading ? "Signing in..." : "Sign In"}
+                  {loading ? t("login.signing_in") : t("login.signin")}
                 </Button>
               </motion.div>
             </form>
@@ -153,7 +155,7 @@ export default function LoginForm() {
               transition={{ delay: 0.6 }}
               className="text-center space-y-2"
             >
-              <div className="text-xs text-gray-500 dark:text-gray-400">Demo Credentials:</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">{t("login.demo_credentials")}</div>
               <div className="grid grid-cols-3 gap-2 text-xs">
                 <div className="p-2 bg-gray-50 dark:bg-gray-700 rounded">
                   <div className="font-medium">admin</div>

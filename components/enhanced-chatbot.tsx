@@ -20,6 +20,7 @@ import {
   Mic,
   Paperclip,
 } from "lucide-react"
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 interface Message {
   id: string
@@ -29,14 +30,14 @@ interface Message {
 }
 
 export default function EnhancedChatbot() {
+  const { t, language } = useLanguage() // Use the translation hook and language
   const [isOpen, setIsOpen] = useState(false)
   const [isMinimized, setIsMinimized] = useState(false)
   const [messages, setMessages] = useState<Message[]>([
     {
       id: "1",
       role: "assistant",
-      content:
-        "Bonjour ! Je suis votre Assistant STRUGAL ✨ Comment puis-je vous aider avec la gestion de votre inventaire aujourd'hui ?",
+      content: t("chatbot.initial_message"),
       timestamp: new Date(),
     },
   ])
@@ -53,6 +54,18 @@ export default function EnhancedChatbot() {
   useEffect(() => {
     scrollToBottom()
   }, [messages])
+
+  // Update initial message when language changes
+  useEffect(() => {
+    setMessages([
+      {
+        id: "1",
+        role: "assistant",
+        content: t("chatbot.initial_message"),
+        timestamp: new Date(),
+      },
+    ])
+  }, [language, t])
 
   const toggleChat = () => {
     setIsOpen(!isOpen)
@@ -92,17 +105,18 @@ export default function EnhancedChatbot() {
             role: msg.role,
             content: msg.content,
           })),
+          language: language, // Pass the current language to the API route
         }),
       })
 
       if (!response.ok) {
         const errorData = await response.json()
-        throw new Error(errorData.details || "Échec de la réponse")
+        throw new Error(errorData.details || t("chatbot.send_error"))
       }
 
       const reader = response.body?.getReader()
       if (!reader) {
-        throw new Error("Pas de corps de réponse")
+        throw new Error(t("chatbot.send_error")) // "No response body"
       }
 
       const assistantMessage: Message = {
@@ -145,7 +159,7 @@ export default function EnhancedChatbot() {
       }
     } catch (error) {
       console.error("Chat error:", error)
-      setError(error.message || "Échec de l'envoi du message")
+      setError(error.message || t("chatbot.send_error"))
       setMessages((prev) => prev.filter((msg) => msg.role !== "assistant" || msg.content !== ""))
     } finally {
       setIsLoading(false)
@@ -154,10 +168,10 @@ export default function EnhancedChatbot() {
   }
 
   const quickActions = [
-    "Comment ajouter un nouvel article ?",
-    "Voir les statistiques d'inventaire",
-    "Aide sur l'aluminium",
-    "Support technique",
+    t("chatbot.quick_action.add_item"),
+    t("chatbot.quick_action.view_stats"),
+    t("chatbot.quick_action.aluminum_help"),
+    t("chatbot.quick_action.tech_support"),
   ]
 
   return (
@@ -229,7 +243,7 @@ export default function EnhancedChatbot() {
                   </motion.div>
                   <div>
                     <CardTitle className="text-sm font-bold flex items-center gap-2">
-                      Assistant STRUGAL
+                      {t("chatbot.title")}
                       <Sparkles className="h-4 w-4 text-primary-200" />
                     </CardTitle>
                     <motion.p
@@ -237,7 +251,13 @@ export default function EnhancedChatbot() {
                       animate={{ opacity: [0.7, 1, 0.7] }}
                       transition={{ duration: 2, repeat: Number.POSITIVE_INFINITY }}
                     >
-                      {error ? "Erreur" : isTyping ? "Écrit..." : isLoading ? "Réflexion..." : "En ligne"}
+                      {error
+                        ? t("chatbot.status.error")
+                        : isTyping
+                          ? t("chatbot.status.typing")
+                          : isLoading
+                            ? t("chatbot.status.thinking")
+                            : t("chatbot.status.online")}
                     </motion.p>
                   </div>
                 </div>
@@ -304,7 +324,7 @@ export default function EnhancedChatbot() {
                                 message.role === "user" ? "text-white/70" : "text-gray-500 dark:text-gray-400"
                               }`}
                             >
-                              {message.timestamp.toLocaleTimeString("fr-FR", {
+                              {message.timestamp.toLocaleTimeString(language === "fr" ? "fr-FR" : "es-ES", {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               })}
@@ -374,7 +394,7 @@ export default function EnhancedChatbot() {
                   {/* Quick Actions */}
                   {messages.length === 1 && (
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="px-4 pb-2">
-                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">Actions rapides :</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mb-2">{t("chatbot.quick_actions")}</div>
                       <div className="flex flex-wrap gap-2">
                         {quickActions.map((action, index) => (
                           <motion.button
@@ -423,7 +443,7 @@ export default function EnhancedChatbot() {
                       <Input
                         value={input}
                         onChange={(e) => setInput(e.target.value)}
-                        placeholder="Posez-moi une question..."
+                        placeholder={t("chatbot.input.placeholder")}
                         className="flex-1 h-10 text-sm border-0 bg-white dark:bg-gray-800 shadow-sm focus:shadow-md transition-shadow rounded-xl"
                         disabled={isLoading}
                       />
@@ -442,7 +462,7 @@ export default function EnhancedChatbot() {
 
                     {error && (
                       <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-red-500 mt-2">
-                        Échec de l'envoi du message. Veuillez réessayer.
+                        {t("chatbot.send_error")}
                       </motion.p>
                     )}
                   </div>

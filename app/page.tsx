@@ -8,10 +8,12 @@ import { motion } from "framer-motion"
 import { getUser } from "@/lib/auth"
 import LoginForm from "@/components/login-form"
 import Image from "next/image"
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 export default function HomePage() {
   const [mounted, setMounted] = useState(false)
   const router = useRouter()
+  const { t } = useLanguage() // Use the translation hook
 
   useEffect(() => {
     setMounted(true)
@@ -38,7 +40,7 @@ export default function HomePage() {
             className="object-contain mx-auto mb-4"
           />
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-400 mx-auto"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">{t("loading.text")}</p>
         </motion.div>
       </div>
     )

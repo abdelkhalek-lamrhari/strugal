@@ -4,12 +4,14 @@ import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Package, TrendingUp, BarChart3, Activity, Zap, Target } from "lucide-react"
 import type { InventoryItem } from "@/lib/inventory"
+import { useLanguage } from "@/contexts/language-context" // Import useLanguage
 
 interface EnhancedDashboardStatsProps {
   items: InventoryItem[]
 }
 
 export default function EnhancedDashboardStats({ items }: EnhancedDashboardStatsProps) {
+  const { t } = useLanguage() // Use the translation hook
   const aluminumCount = items.filter((item) => item.type === "aluminum").reduce((sum, item) => sum + item.quantity, 0)
   const glassCount = items.filter((item) => item.type === "glass").reduce((sum, item) => sum + item.quantity, 0)
   const totalValue = items.length
@@ -19,9 +21,9 @@ export default function EnhancedDashboardStats({ items }: EnhancedDashboardStats
 
   const stats = [
     {
-      title: "Articles Totaux",
+      title: t("stats.total_items.title"),
       value: totalValue,
-      subtitle: "références d'inventaire",
+      subtitle: t("stats.total_items.subtitle"),
       icon: Package,
       gradient: "from-primary-500 to-primary-600",
       bgGradient: "from-primary-50 to-primary-100 dark:from-primary-950/20 dark:to-primary-900/20",
@@ -30,9 +32,9 @@ export default function EnhancedDashboardStats({ items }: EnhancedDashboardStats
       trendUp: true,
     },
     {
-      title: "Stock Aluminium",
+      title: t("stats.aluminum_stock.title"),
       value: aluminumCount,
-      subtitle: "pièces totales",
+      subtitle: t("stats.aluminum_stock.subtitle"),
       icon: BarChart3,
       gradient: "from-primary-500 to-primary-600",
       bgGradient: "from-primary-50 to-primary-100 dark:from-primary-950/20 dark:to-primary-900/20",
@@ -42,9 +44,9 @@ export default function EnhancedDashboardStats({ items }: EnhancedDashboardStats
       trendUp: true,
     },
     {
-      title: "Stock Verre",
+      title: t("stats.glass_stock.title"),
       value: glassCount,
-      subtitle: "pièces totales",
+      subtitle: t("stats.glass_stock.subtitle"),
       icon: Activity,
       gradient: "from-primary-400 to-primary-500",
       bgGradient: "from-primary-50 to-primary-100 dark:from-primary-950/20 dark:to-primary-900/20",
@@ -54,9 +56,9 @@ export default function EnhancedDashboardStats({ items }: EnhancedDashboardStats
       trendUp: true,
     },
     {
-      title: "Efficacité",
+      title: t("stats.efficiency.title"),
       value: "94",
-      subtitle: "% de performance",
+      subtitle: t("stats.efficiency.subtitle"),
       icon: Target,
       gradient: "from-primary-600 to-primary-700",
       bgGradient: "from-primary-50 to-primary-100 dark:from-primary-950/20 dark:to-primary-900/20",
